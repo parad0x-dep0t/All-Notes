@@ -297,3 +297,32 @@ Enumeration is recursive.
 - [ ] Enumerate API endpoints.
 - [ ] Locate administrative interfaces.
 - [ ] Build the complete attack surface.
+
+```
+Found New Directory?
+        │
+        ▼
+Browse It Manually
+        │
+        ▼
+Fingerprint Technology
+        │
+        ▼
+Check Source Code
+        │
+        ▼
+Review JavaScript
+        │
+        ▼
+Run FFUF Again
+        │
+        ▼
+Found More Content?
+        │
+      Yes ───────────────► Repeat
+        │
+       No
+        │
+        ▼
+Continue Testing
+```
