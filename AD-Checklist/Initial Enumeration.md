@@ -14,6 +14,10 @@ Identify all open TCP ports and the services running on the target.
 
 ```bash
 nmap -Pn -p- --min-rate 1000 -T4 <TARGET_IP> -oA tcp-all-ports
+
+OR
+# Scanner.sh is in the repo
+bash scanner.sh <IP> <output-file-name>
 ```
 
 ### Service & Version Detection
@@ -115,13 +119,16 @@ smbclient -L //<TARGET_IP> -N
 ### Enumerate SMB Information
 
 ```bash
+enum4linux -a <TARGET_IP>
 enum4linux-ng <TARGET_IP>
 ```
 
 or
 
 ```bash
-crackmapexec smb <TARGET_IP> --shares
+nxc smb <TARGET_IP>
+nxc smb <TARGET_IP> --generate-hosts-file hosts-file
+nxc smb <TARGET_IP>  -u '' -p '' --shares
 ```
 
 > **Goal:** Identify accessible shares and determine whether null sessions are permitted.
